@@ -11,7 +11,9 @@ const option = {
 const req = http.request(option, (response) => {
     console.log(response.statusCode)
     console.log(response.statusMessage)
-    console.log(response.headers)
+
+    //saya menggunakan location dimana apabila ketika mendapat redicrect URl saya tahu kemana akan di redirect berhubung kita menggunakan http sering kali kita mendapat redicrect line k https
+    console.log(response.headers.location)
 })
 
 req.on('error' ,(e) => {
