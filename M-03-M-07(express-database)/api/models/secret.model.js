@@ -1,66 +1,29 @@
 const sql = require("./db.js");
-const jwt = require('../../utils/jwt')
-const { encrypt, decrypt } = require('../../utils/cryptography');
 
 // constructor
-const User = function(user) {
-  this.email = user.email;
-  this.name = user.name;
-  this.password = user.password;
-  this.iv = user.iv
+const Secret = function(secret) {
+    this.title = secret.title
+    this.body = secret.body
+    this.user_id = secret.userId
 };
 
 
-User.create = (newUser, result) => {
-  sql.query("INSERT INTO users SET ?", newUser, (err, res) => {
+Secret.create = (newSecret, result) => {
+  sql.query("INSERT INTO secrets SET ?", newSecret, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
       return;
     }
 
-    newUser.id = res.insertId
-
-    console.log("created user: ", { id: res.insertId, ...newUser,token:  jwt.GenerateToken(newUser)});
-    result(null, { id: res.insertId, ...newUser,token:  jwt.GenerateToken(newUser) });
+    console.log("created secret: ", { id: res.insertId, ...newSecret});
+    result(null, { id: res.insertId, ...newSecret });
   });
 };
 
 
-User.login = (loginUser,result) => {
-    sql.query(`SELECT * FROM users WHERE email = '${loginUser.email}'`, loginUser, (err, res) => {
-        if (err) {
-          console.log("error: ", err);
-          result(err, null);
-          return;
-        }
-    
-        if(res.length){
-            //check password
-            const decryptUserPassword = decrypt({
-                iv: res[0].iv,
-                hashed: res[0].password
-            })
-            console.log(decryptUserPassword,loginUser.password)
-            if(loginUser.password != decryptUserPassword){
-                result({ kind: "invalid_password" }, null);
-                return
-            }
 
-            res[0].token = jwt.GenerateToken(res[0])
-            console.log("found user: ", res[0]);
-            result(null, res[0]);
-            return;
-        }
-         // not found Customer with the id
-        result({ kind: "not_found" }, null);
-    });
-}
-
-
-
-
-User.findById = (userId, result) => {
+Secret.findById = (userId, result) => {
   sql.query(`SELECT * FROM users WHERE id = ${userId}`, (err, res) => {
     if (err) {
       console.log("error: ", err);
@@ -82,7 +45,7 @@ User.findById = (userId, result) => {
 
 
 
-User.getAll = result => {
+Secret.getAll = result => {
   sql.query("SELECT * FROM users", (err, res) => {
     if (err) {
       console.log("error: ", err);
@@ -98,7 +61,7 @@ User.getAll = result => {
 
 
 
-User.updateById = (id, user, result) => {
+Secret.updateById = (id, user, result) => {
   sql.query(
     "UPDATE users SET email = ?, name = ? WHERE id = ?",
     [user.email, user.name, id],
@@ -124,7 +87,7 @@ User.updateById = (id, user, result) => {
 
 
 
-User.remove = (id, result) => {
+Secret.remove = (id, result) => {
   sql.query("DELETE FROM users WHERE id = ?", id, (err, res) => {
     if (err) {
       console.log("error: ", err);
@@ -144,7 +107,7 @@ User.remove = (id, result) => {
 };
 
 
-User.removeAll = result => {
+Secret.removeAll = result => {
   sql.query("DELETE FROM users", (err, res) => {
     if (err) {
       console.log("error: ", err);
@@ -157,4 +120,4 @@ User.removeAll = result => {
   });
 };
 
-module.exports = User;
+module.exports = Secret;
