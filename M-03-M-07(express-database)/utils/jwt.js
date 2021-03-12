@@ -5,6 +5,5 @@ module.exports.GenerateToken = (user) => {
     return jwt.sign({
         id: user.id,
         email: user.email,
-        username: user.name
     }, JWT_SECRET, { expiresIn: '7d' })
 } 

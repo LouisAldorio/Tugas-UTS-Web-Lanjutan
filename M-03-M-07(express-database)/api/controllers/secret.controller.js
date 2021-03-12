@@ -1,124 +1,148 @@
 const Secret = require("../models/secret.model.js");
 
-// Create and Save a new User
 exports.create = (req, res) => {
-  // Validate request
-  if (!req.body) {
-    res.status(400).send({
-      message: "Content can not be empty!"
-    });
-  }
+	if (!req.body) {
+		res.status(400).send({
+			message: "Content can not be empty!"
+		});
+	}
 
-  console.log(req.user)
-  const userId = req.user.id
-  console.log(userId)
-  // Create a Secret
-  const secret = new Secret({
-    title: req.body.title,
-    body: req.body.body,
-    userId: userId
-  });
+	const userId = req.user.id
 
-  // Save User in the database
-  Secret.create(secret, (err, data) => {
-    if (err)
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while creating the User."
-      });
-    else {      
-        res.send(data);
-    }
-  });
+	const secret = new Secret({
+		title: req.body.title,
+		body: req.body.body,
+		userId: userId
+	});
+
+	Secret.create(secret, (err, data) => {
+		if (err)
+			res.status(500).send({
+				message: err.message || "Some error occurred while creating Secret."
+			});
+		else {      
+			res.send(data);
+		}
+	});
 };
 
-
-
-
-
-
-// Retrieve all Users from the database.
+// get all secret
 exports.findAll = (req, res) => {
-    User.getAll((err, data) => {
-        if (err)
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while retrieving users."
-          });
-        else res.send(data);
-      });
+	Secret.getAll((err, data) => {
+		if (err)
+			res.status(500).send({
+				message: err.message || "Some error occurred while retrieving secrets."
+			});
+		else res.send(data);
+	});
 };
 
-// Find a single User with a userId
 exports.findOne = (req, res) => {
-    User.findById(req.params.userId, (err, data) => {
-        if (err) {
-          if (err.kind === "not_found") {
-            res.status(404).send({
-              message: `Not found User with id ${req.params.userId}.`
-            });
-          } else {
-            res.status(500).send({
-              message: "Error retrieving User with id " + req.params.userId
-            });
-          }
-        } else res.send(data);
-      });
+	Secret.findById(req.params.secretId, (err, data) => {
+		if (err) {
+			if (err.kind === "not_found") {
+				res.status(404).send({
+					message: `Not found Secret with id ${req.params.secretId}.`,
+					secrets: []
+				});
+			} else {
+				res.status(500).send({
+					message: "Error retrieving Secret with id " + req.params.secretId
+				});
+			}
+		} else res.send(data);
+	});
 };
 
-// Update a User identified by the userId in the request
+exports.findCurrentLoggedUserSecret = (req, res) => {
+	Secret.findLoggedInUserSecrets(req.user.id, (err, data) => {
+		if (err) {
+			if (err.kind === "not_found") {
+				res.status(404).send({
+					message: `Not found Secrets for user ${req.user.email}.`,
+					secrets: []
+				});
+			} else {
+				res.status(500).send({
+					message: "Error retrieving Secrets for user " + req.user.email
+				});
+			}
+		} else res.send(data);
+	});
+};
+
+
 exports.update = (req, res) => {
-   // Validate Request
-   if (!req.body) {
-    res.status(400).send({
-      message: "Content can not be empty!"
-    });
-  }
+	if (!req.body) {
+		res.status(400).send({
+			message: "Content can not be empty!"
+		});
+	}
 
-  User.updateById(
-    req.params.userId,
-    new User(req.body),
-    (err, data) => {
-      if (err) {
-        if (err.kind === "not_found") {
-          res.status(404).send({
-            message: `Not found User with id ${req.params.userId}.`
-          });
-        } else {
-          res.status(500).send({
-            message: "Error updating User with id " + req.params.userId
-          });
-        }
-      } else res.send(data);
-    }
-  );
+	Secret.updateById(req.params.secretId,req.body.title,req.body.body,req.user,(err, data) => {
+		if (err) {
+			if (err.kind === "not_found") {
+				res.status(404).send({
+					message: `Not found Secret with id ${req.params.secretId}.`
+				});
+			}else if (err.kind === "not_own_secret"){
+				res.status(401).send({
+					message: `You are not the owner of Secret with id ${req.params.secretId}.`
+				});
+			} else {
+				res.status(500).send({
+					message: "Error updating Secret with id " + req.params.secretId
+				});
+			}
+		} else res.send(data);
+	});
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Delete a User with the specified userId in the request
 exports.delete = (req, res) => {
-    User.remove(req.params.userId, (err, data) => {
-        if (err) {
-          if (err.kind === "not_found") {
-            res.status(404).send({
-              message: `Not found User with id ${req.params.userId}.`
-            });
-          } else {
-            res.status(500).send({
-              message: "Could not delete User with id " + req.params.userId
-            });
-          }
-        } else res.send({ message: `User was deleted successfully!` });
-      });
+	Secret.remove(req.params.userId, (err, data) => {
+		if (err) {
+			if (err.kind === "not_found") {
+				res.status(404).send({
+					message: `Not found User with id ${req.params.userId}.`
+				});
+			} else {
+				res.status(500).send({
+					message: "Could not delete User with id " + req.params.userId
+				});
+			}
+		} else res.send({ message: `User was deleted successfully!` });
+	});
 };
 
 // Delete all Users from the database.
 exports.deleteAll = (req, res) => {
-    User.removeAll((err, data) => {
-        if (err)
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while removing all user."
-          });
-        else res.send({ message: `All Users were deleted successfully!` });
-      });
+	Secret.removeAll((err, data) => {
+		if (err)
+			res.status(500).send({
+				message: err.message || "Some error occurred while removing all user."
+			});
+		else res.send({ message: `All Users were deleted successfully!` });
+	});
 };

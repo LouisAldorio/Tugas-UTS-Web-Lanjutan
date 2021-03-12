@@ -2,20 +2,20 @@ module.exports = app => {
     const secret = require("../controllers/secret.controller.js");
     const {verify} = require("../middleware/auth")
   
-    // Create or register user
+    // create secret
     app.post("/secret", secret.create);
 
-    //login user
-    // app.post("/users/login",user.login)
-  
-    // // get All users 
-    // app.get("/users", user.findAll);
-  
-    // // get user by id
-    // app.get("/users/:userId", user.findOne);
-  
-    // // update user by id
-    // app.put("/users/:userId", user.update);
+    // get all secrets
+    app.get("/secret", secret.findAll);
+
+    //get logged in user secret
+    app.get("/secret/me",secret.findCurrentLoggedUserSecret)
+
+    // get user by id
+    app.get("/secret/:secretId", secret.findOne);
+
+    // update secret by id
+    app.put("/secret/:secretId", secret.update);
   
     // // delete user by id
     // app.delete("/users/:userId", user.delete);
