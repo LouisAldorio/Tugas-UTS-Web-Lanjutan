@@ -1,6 +1,5 @@
 module.exports = app => {
     const secret = require("../controllers/secret.controller.js");
-    const {verify} = require("../middleware/auth")
   
     // create secret
     app.post("/secret", secret.create);
@@ -17,9 +16,9 @@ module.exports = app => {
     // update secret by id
     app.put("/secret/:secretId", secret.update);
   
-    // // delete user by id
-    // app.delete("/users/:userId", user.delete);
+    // delete secret by id
+    app.delete("/secret/:secretId", secret.delete);
   
-    // // delete all user
-    // app.delete("/users", user.deleteAll);
+    //  delete all user secrets
+    app.delete("/secret/user/me", secret.deleteAll);
 };

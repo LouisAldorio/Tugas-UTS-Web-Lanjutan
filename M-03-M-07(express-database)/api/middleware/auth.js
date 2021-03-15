@@ -3,7 +3,6 @@ const { JWT_SECRET } = require('../config/db.config')
 
 
 exports.verify = (req,res,next) => {
-    //get creden of user that create secret
     if(!req.headers){
         res.status(401).send({
             message: "Login is required to create Secret!"

@@ -26,7 +26,6 @@ exports.create = (req, res) => {
 	});
 };
 
-// get all secret
 exports.findAll = (req, res) => {
 	Secret.getAll((err, data) => {
 		if (err)
@@ -98,51 +97,32 @@ exports.update = (req, res) => {
 	});
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Delete a User with the specified userId in the request
 exports.delete = (req, res) => {
-	Secret.remove(req.params.userId, (err, data) => {
+	Secret.remove(req.params.secretId,req.user, (err, data) => {
 		if (err) {
 			if (err.kind === "not_found") {
 				res.status(404).send({
-					message: `Not found User with id ${req.params.userId}.`
+					message: `Not found Secret with id ${req.params.secretId}.`
+				});
+			}else if (err.kind === "not_own_secret") {
+				res.status(401).send({
+					message: `You are not the owner of secret with id ${req.params.secretId}.`
 				});
 			} else {
 				res.status(500).send({
-					message: "Could not delete User with id " + req.params.userId
+					message: "Could not delete Secret with id " + req.params.secretId
 				});
 			}
-		} else res.send({ message: `User was deleted successfully!` });
+		} else res.send({ message: `Secret was deleted successfully!` });
 	});
 };
 
-// Delete all Users from the database.
 exports.deleteAll = (req, res) => {
-	Secret.removeAll((err, data) => {
+	Secret.removeAll(req.user.id,(err, data) => {
 		if (err)
 			res.status(500).send({
 				message: err.message || "Some error occurred while removing all user."
 			});
-		else res.send({ message: `All Users were deleted successfully!` });
+		else res.send({ message: `All Secrets were deleted successfully!` });
 	});
 };

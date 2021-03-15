@@ -94,50 +94,39 @@ Secret.updateById = (id, title,body,user, result) => {
 	});
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Secret.remove = (id, result) => {
-	sql.query("DELETE FROM users WHERE id = ?", id, (err, res) => {
+Secret.remove = (id,user, result) => {
+	sql.query(`SELECT * FROM secrets WHERE id = ${id}`, (err, res) => {
 		if (err) {
 			console.log("error: ", err);
 			result(null, err);
 			return;
 		}
-
-		if (res.affectedRows == 0) {
-			// not found User with the id
-			result({ kind: "not_found" }, null);
-			return;
-		}
-
-		console.log("deleted user with id: ", id);
-		result(null, res);
-	});
+		if(res.length) {
+			if(res[0].user_id == user.id){
+				sql.query("DELETE FROM secrets WHERE id = ?", id, (err, res) => {
+					if (err) {
+						console.log("error: ", err);
+						result(null, err);
+						return;
+					}
+		
+					result(null, res);
+				});
+			}else{
+				result({ kind: "not_own_secret" }, null);
+				return;
+			}			
+		}		
+	})
 };
 
-
-Secret.removeAll = result => {
-	sql.query("DELETE FROM users", (err, res) => {
+Secret.removeAll = (userId,result) => {
+	sql.query(`DELETE FROM secrets WHERE user_id = '${userId}'`, (err, res) => {
 		if (err) {
 			console.log("error: ", err);
 			result(null, err);
 			return;
 		}
-
-		console.log(`deleted ${res.affectedRows} users`);
 		result(null, res);
 	});
 };
