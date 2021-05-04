@@ -1,8 +1,8 @@
 module.exports = {
-  HOST: "localhost",
+  HOST: 'localhost',
   USER: "root",
   PASSWORD: "Lengkong123_",
-  DB: "web-lanjutan-uts",
+  DB: "web_lanjutan",
   PORT: 8080,
   JWT_SECRET: "louisaldorio"
 }
